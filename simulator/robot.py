@@ -1,50 +1,33 @@
 import pygame
 import math
-from config import (
-    ROBOT_SPEED,
-    ROBOT_TURN_SPEED,
-    ROBOT_SIZE,
-    WINDOW_WIDTH,
-    WINDOW_HEIGHT,
-)
 
 class Robot:
     def __init__(self, x, y, angle=0):
         self.x = x
         self.y = y
-        self.angle = angle  # degrees
+        self.angle = angle
+        self.speed = 0
+        self.size = 20
 
-    def update(self, world, dt=1.0):
-        keys = pygame.key.get_pressed()
-
-        # --- Rotation ---
+    def handle_input(self, keys):
         if keys[pygame.K_LEFT]:
-            self.angle -= ROBOT_TURN_SPEED * dt
+            self.angle -= 0.05
         if keys[pygame.K_RIGHT]:
-            self.angle += ROBOT_TURN_SPEED * dt
-
-        # --- Movement ---
-        dx = 0
-        dy = 0
-
+            self.angle += 0.05
         if keys[pygame.K_UP]:
-            dx += ROBOT_SPEED * math.cos(math.radians(self.angle)) * dt
-            dy += ROBOT_SPEED * math.sin(math.radians(self.angle)) * dt
+            self.speed = 2
+        elif keys[pygame.K_DOWN]:
+            self.speed = -2
+        else:
+            self.speed = 0
 
-        if keys[pygame.K_DOWN]:
-            dx -= ROBOT_SPEED * math.cos(math.radians(self.angle)) * dt
-            dy -= ROBOT_SPEED * math.sin(math.radians(self.angle)) * dt
-
-        # Move
-        self.x += dx
-        self.y += dy
-
-        # --- Prevent leaving screen ---
-        half = ROBOT_SIZE / 2
-        self.x = max(half, min(WINDOW_WIDTH - half, self.x))
-        self.y = max(half, min(WINDOW_HEIGHT - half, self.y))
+    def update(self, world):
+        self.x += math.cos(self.angle) * self.speed
+        self.y += math.sin(self.angle) * self.speed
 
     def draw(self, screen):
-        rect = pygame.Rect(0, 0, ROBOT_SIZE, ROBOT_SIZE)
-        rect.center = (self.x, self.y)
-        pygame.draw.rect(screen, (0, 100, 255), rect)
+        pygame.draw.rect(
+            screen,
+            (0, 100, 255),
+            pygame.Rect(self.x - self.size, self.y - self.size, self.size*2, self.size*2)
+        )

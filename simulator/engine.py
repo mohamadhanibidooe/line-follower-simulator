@@ -13,6 +13,13 @@ class Engine:
         self.robot = Robot(100, 100, angle=0)
 
     def update(self):
+        # گرفتن وضعیت کیبورد
+        keys = pygame.key.get_pressed()
+
+        # حرکت دادن ربات بر اساس کیبورد
+        self.robot.handle_input(keys)
+
+        # آپدیت موقعیت ربات
         self.robot.update(self.world)
 
     def draw(self):
