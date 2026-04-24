@@ -26,8 +26,23 @@ class Robot:
         self.y += math.sin(self.angle) * self.speed
 
     def draw(self, screen):
-        pygame.draw.rect(
-            screen,
-            (0, 100, 255),
-            pygame.Rect(self.x - self.size, self.y - self.size, self.size*2, self.size*2)
+        import math
+        import pygame
+
+        # tri point
+        p1 = (
+            self.x + math.cos(self.angle) * 25,
+            self.y + math.sin(self.angle) * 25
         )
+        p2 = (
+            self.x + math.cos(self.angle + 2.5) * 20,
+            self.y + math.sin(self.angle + 2.5) * 20
+        )
+        p3 = (
+            self.x + math.cos(self.angle - 2.5) * 20,
+            self.y + math.sin(self.angle - 2.5) * 20
+        )
+
+        #draw tri
+        pygame.draw.polygon(screen, (0, 120, 255), [p1, p2, p3])
+
