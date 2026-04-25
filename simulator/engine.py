@@ -9,7 +9,7 @@ class Engine:
         pygame.display.set_caption("Robot Simulator")
         self.clock = pygame.time.Clock()
 
-        self.world = World()
+        self.world = World(width, height)
         self.robot = Robot(100, 100, angle=0)
 
     def update(self):
