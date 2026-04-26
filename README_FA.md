@@ -61,14 +61,19 @@ Enter robot start Y
 ```text
 line-follower-simulator/
 │
+├── config.py
 ├── runner.py
-├── user_code.py
+├── user_code
+    ├── user_code.py
 ├── track.png
 │
 └── simulator/
     ├── engine.py
     ├── robot.py
     ├── world.py
+    ├── __init__.py
+    ├── sensors.py
+    ├── track.png
     └── api_stub.py
 ```
 
@@ -296,6 +301,4 @@ python runner.py
 
 ---
 
-# لایسنس
 
-آزاد برای استفاده آموزشی.
