@@ -30,4 +30,4 @@ def loop(dt):
 
     else:
         # If no line detected, slow down
-        set_speed(0)
+        set_turn(0)
