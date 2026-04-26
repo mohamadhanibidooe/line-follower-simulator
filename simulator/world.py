@@ -20,20 +20,23 @@ class World:
             (self.width, self.height)
         )
 
-        # draw track once
+        # draw track to world
         self.surface.blit(self.track_image, (0, 0))
 
+        # -------------------------------
+        # Start point (Robot spawn point)
+        # Example: (100, 200)
+        # Change this to whatever point you want
+        # -------------------------------
+        self.start_point = (150, 320)  # <-- EDIT THIS VALUE
+
     def update(self, dt):
-        # world usually doesn't need updating
         pass
 
     def draw(self, screen):
-        # draw world to main screen
         screen.blit(self.surface, (0, 0))
 
     def get_color(self, x, y):
-        # return color at pixel (used by robot sensors)
-
         if x < 0 or y < 0 or x >= self.width or y >= self.height:
             return (255, 255, 255)
 
