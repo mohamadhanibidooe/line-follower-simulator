@@ -16,7 +16,7 @@ class Robot:
 
         # distance of sensors from robot center
         self.sensor_offset = 35
-        self.sensor_spacing = 20
+        self.sensor_spacing = 8
 
     # ---------------------------------------------------------
     # Handle keyboard input
@@ -54,19 +54,21 @@ class Robot:
         self.world = world
 
     # ---------------------------------------------------------
-    # Read line sensors (Left, Center, Right)
+    # Read line sensors (5 sensors)
     # ---------------------------------------------------------
     def read_line_sensors(self):
 
         # If world is not set yet, return no detection
         if not hasattr(self, "world") or self.world is None:
-            return [0, 0, 0], [(int(self.x), int(self.y))] * 3
+            return [0,0,0,0,0], [(int(self.x), int(self.y))] * 5
 
         # sensor positions relative to robot
         points_local = [
-            (self.sensor_offset, -self.sensor_spacing),  # left
-            (self.sensor_offset, 0),                     # center
-            (self.sensor_offset, self.sensor_spacing),   # right
+            (self.sensor_offset, -2*self.sensor_spacing),  # far left
+            (self.sensor_offset, -self.sensor_spacing),    # left
+            (self.sensor_offset, 0),                       # center
+            (self.sensor_offset, self.sensor_spacing),     # right
+            (self.sensor_offset, 2*self.sensor_spacing),   # far right
         ]
 
         readings = []
@@ -84,11 +86,12 @@ class Robot:
             # check if sensor is inside world
             if 0 <= ix < self.world.surface.get_width() and 0 <= iy < self.world.surface.get_height():
                 color = self.world.surface.get_at((ix, iy))
-                readings.append(1 if color == (0, 0, 0, 255) else 0)
+                readings.append(1 if color == (0,0,0,255) else 0)
             else:
                 readings.append(0)
 
         return readings, positions
+
 
 
     # ---------------------------------------------------------
