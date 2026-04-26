@@ -1,7 +1,7 @@
 import pygame
 from simulator.world import World
 from simulator.robot import Robot
-
+from simulator.api_stub import register_robot
 class Engine:
     def __init__(self, width, height):
         pygame.init()
@@ -11,6 +11,9 @@ class Engine:
 
         self.world = World(width, height)
         self.robot = Robot(100, 100, angle=0)
+        register_robot(self.robot)
+
+
 
     def update(self):
         # گرفتن وضعیت کیبورد

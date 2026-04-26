@@ -58,6 +58,10 @@ class Robot:
     # ---------------------------------------------------------
     def read_line_sensors(self):
 
+        # If world is not set yet, return no detection
+        if not hasattr(self, "world") or self.world is None:
+            return [0, 0, 0], [(int(self.x), int(self.y))] * 3
+
         # sensor positions relative to robot
         points_local = [
             (self.sensor_offset, -self.sensor_spacing),  # left
@@ -79,16 +83,13 @@ class Robot:
 
             # check if sensor is inside world
             if 0 <= ix < self.world.surface.get_width() and 0 <= iy < self.world.surface.get_height():
-
                 color = self.world.surface.get_at((ix, iy))
-
-                # detect black line
                 readings.append(1 if color == (0, 0, 0, 255) else 0)
-
             else:
                 readings.append(0)
 
         return readings, positions
+
 
     # ---------------------------------------------------------
     # Draw robot
