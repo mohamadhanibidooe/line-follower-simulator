@@ -1,4 +1,7 @@
+# api_stub.py
 # Global robot reference
+# Comments are in English
+
 _robot = None
 
 
@@ -18,11 +21,12 @@ def get_robot():
 # ---------------------------
 
 def read_line_sensors():
-    """Return line sensor readings (L, C, R)."""
+    """Return line sensor readings (L, C, R) as booleans."""
     if _robot:
         readings, _ = _robot.read_line_sensors()
-        return readings
-    return [0, 0, 0]
+        left, center, right = readings
+        return left, center, right
+    return False, False, False
 
 
 def set_speed(speed):

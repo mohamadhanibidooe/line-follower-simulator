@@ -1,33 +1,21 @@
-from simulator.api_stub import read_line_sensors, set_speed, set_turn
+# user_code.py
+# DEBUG: print raw sensor values
 
+from simulator.api_stub import get_robot
+timer = 0
 
 def setup():
-    print("Line follower ready!")
+    print("[Setup] Debug sensor reader")
 
 
 def loop(dt):
-    # Read sensors: [Left, Center, Right]
-    left, center, right = read_line_sensors()
+    global timer
+    robot = get_robot()
+    if robot is None:
+        return
 
-    base_speed = 2
-    turn_strength = 0.05
-
-    # Default forward movement
-    set_speed(base_speed)
-
-    # Line following logic
-    if center == 1:
-        # Go straight
-        set_turn(0)
-
-    elif left == 1:
-        # Turn left
-        set_turn(-turn_strength)
-
-    elif right == 1:
-        # Turn right
-        set_turn(turn_strength)
-
-    else:
-        # If no line detected, slow down
-        set_turn(0)
+    timer += dt
+    if timer >= 0.1:   # print 10 times per second
+        timer = 0
+        sensors, _ = robot.read_line_sensors()
+        print("Sensors:", sensors)
