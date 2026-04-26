@@ -7,51 +7,51 @@ class Robot:
         self.y = y
         self.angle = angle
 
-        self.speed = 0
-        self.turn_speed = 0
+        # motor speeds in percent (0-100)
+        self.left_motor = 0
+        self.right_motor = 0
 
+        # max linear speed (pixels per frame)
         self.max_speed = 3
-        self.acc = 0.2
-        self.turn_rate = 0.05
+
+        # how strong turning effect is
+        self.turn_factor = 0.04
 
         # distance of sensors from robot center
         self.sensor_offset = 35
         self.sensor_spacing = 8
 
-    # ---------------------------------------------------------
-    # Handle keyboard input
-    # ---------------------------------------------------------
-    def handle_input(self, keys):
+    def set_motors(self, left_percent, right_percent):
+        # clamp motor values between 0 and 100
+        self.left_motor = max(0, min(100, left_percent))
+        self.right_motor = max(0, min(100, right_percent))
 
-        # rotate robot
-        if keys[pygame.K_LEFT]:
-            self.angle -= self.turn_rate
-        if keys[pygame.K_RIGHT]:
-            self.angle += self.turn_rate
-
-        # move forward / backward
-        if keys[pygame.K_UP]:
-            self.speed += self.acc
-        elif keys[pygame.K_DOWN]:
-            self.speed -= self.acc
-        else:
-            # natural friction
-            self.speed *= 0.92
-
-        # clamp speed
-        self.speed = max(-self.max_speed, min(self.speed, self.max_speed))
-
+   
     # ---------------------------------------------------------
     # Update robot position
     # ---------------------------------------------------------
     def update(self, world):
 
-        # move in direction of angle
-        self.x += math.cos(self.angle) * self.speed
-        self.y += math.sin(self.angle) * self.speed
-
         # keep world reference for sensor reading
         self.world = world
+
+        # convert motor percent to real speed
+        left_speed = (self.left_motor / 100.0) * self.max_speed
+        right_speed = (self.right_motor / 100.0) * self.max_speed
+
+        # forward speed = average of both motors
+        forward = (left_speed + right_speed) / 2
+
+        # rotation based on motor difference
+        rotation = (right_speed - left_speed) * self.turn_factor
+
+        # update angle
+        self.angle += rotation
+
+        # move robot
+        self.x += math.cos(self.angle) * forward
+        self.y += math.sin(self.angle) * forward
+
 
     # ---------------------------------------------------------
     # Read line sensors (5 sensors)

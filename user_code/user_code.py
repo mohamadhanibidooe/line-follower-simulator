@@ -1,39 +1,32 @@
 # user_code.py
-# simple smooth 5-sensor line follower
+# motor test
 # comments in English
 
-from simulator.api_stub import get_robot
+from simulator.api_stub import set_motors
 
-BASE_SPEED = 3
+time_passed = 0
 
 def setup():
-    print("Line follower running")
-
+    print("Motor test started")
 
 def loop(dt):
-    robot = get_robot()
-    if robot is None:
-        return
+    global time_passed
 
-    sensors, _ = robot.read_line_sensors()
-    far_left, left, center, right, far_right = sensors
+    # accumulate time
+    time_passed += dt
 
-    # robot always moves forward
-    robot.speed = BASE_SPEED
+    # forward
+    if time_passed < 3:
+        set_motors(50, 50)
 
-    turn = 0
+    # turn right
+    elif time_passed < 6:
+        set_motors(30, 70)
 
-    # calculate steering
-    if far_left:
-        turn = -2
-    elif left:
-        turn = -1
-    elif right:
-        turn = 1
-    elif far_right:
-        turn = 2
+    # turn left
+    elif time_passed < 9:
+        set_motors(70, 30)
+
+    # stop
     else:
-        turn = 0
-
-    # apply smooth steering
-    robot.angle += turn
+        set_motors(0, 0)

@@ -16,14 +16,20 @@ class Engine:
 
 
     def update(self):
-        # گرفتن وضعیت کیبورد
-        keys = pygame.key.get_pressed()
+        # calculate delta time
+        dt = self.clock.tick(60) / 1000.0
 
-        # حرکت دادن ربات بر اساس کیبورد
-        self.robot.handle_input(keys)
+        # update world with dt
+        self.world.update(dt)
 
-        # آپدیت موقعیت ربات
+        # update robot (your Robot.update must accept both world and dt, OR only world)
+        # if your Robot.update signature is update(self, world):
         self.robot.update(self.world)
+
+        # return dt for user_code.loop(dt)
+        return dt
+    
+
 
     def draw(self):
         self.screen.fill((220, 220, 220))

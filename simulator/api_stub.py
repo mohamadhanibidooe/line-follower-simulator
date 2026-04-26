@@ -1,41 +1,36 @@
 # api_stub.py
-# Global robot reference
-# Comments are in English
 
 _robot = None
 
-
 def register_robot(robot):
-    """Register robot instance so user code can access it."""
     global _robot
     _robot = robot
 
-
 def get_robot():
-    """Return the registered robot instance."""
     return _robot
 
-
-# ---------------------------
-# Helper API functions
-# ---------------------------
-
 def read_line_sensors():
-    """Return line sensor readings (L, C, R) as booleans."""
-    if _robot:
-        readings, _ = _robot.read_line_sensors()
-        left, center, right = readings
-        return left, center, right
-    return False, False, False
-
+    # return list of sensor values
+    if _robot is None:
+        return [0, 0, 0, 0, 0]
+    return _robot.read_line_sensors()
 
 def set_speed(speed):
-    """Set robot forward speed."""
-    if _robot:
-        _robot.speed = speed
+    # old function (you can keep it if needed)
+    if _robot is not None:
+        _robot.left_motor = speed
+        _robot.right_motor = speed
+
+def set_turn(turn):
+    # old function (optional)
+    if _robot is not None:
+        _robot.left_motor = 50 - turn
+        _robot.right_motor = 50 + turn
 
 
-def set_turn(turn_speed):
-    """Set robot turning speed."""
-    if _robot:
-        _robot.angle += turn_speed
+def set_motors(left, right):
+    # Sets differential motor speeds
+    # comments in English as user requested
+    if _robot is not None:
+        _robot.left_motor = left
+        _robot.right_motor = right

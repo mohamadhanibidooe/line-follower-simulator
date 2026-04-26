@@ -1,15 +1,16 @@
 import importlib
-import time
 import pygame
 
 from simulator.engine import Engine
 import config
 
 
+# Load user code module
 def load_user_code():
     return importlib.import_module("user_code.user_code")
 
 
+# Ask user to set robot spawn point (optional)
 def ask_spawn_point(default_point):
     print("\n=== Robot Spawn Setup ===")
     print("Press Enter to use default start_point:", default_point)
@@ -18,17 +19,22 @@ def ask_spawn_point(default_point):
         sx = input("Enter spawn X (or Enter): ").strip()
         sy = input("Enter spawn Y (or Enter): ").strip()
 
+        # if empty → use default spawn
         if sx == "" or sy == "":
             return default_point
 
         return (int(sx), int(sy))
+
     except:
         print("Invalid input — using default start point.")
         return default_point
 
 
 def main():
+    # Create engine
     engine = Engine(config.WINDOW_WIDTH, config.WINDOW_HEIGHT)
+
+    # Load user script (user_code/user_code.py)
     user = load_user_code()
 
     # --------------------------------------------------------
@@ -40,31 +46,31 @@ def main():
         chosen_spawn = (100, 100)  # fallback
 
     # --------------------------------------------------------
-    # Apply spawn point to robot
+    # Apply spawn point to the robot
     # --------------------------------------------------------
     if hasattr(engine, "robot"):
         engine.robot.x, engine.robot.y = chosen_spawn
 
-    # Now call user setup
+    # Run optional user setup()
     if hasattr(user, "setup"):
         user.setup()
 
-    last_time = time.time()
     running = True
 
+    # ---------------- MAIN LOOP ----------------
     while running:
+        # handle quit or window events
         running = engine.handle_events()
 
-        dt = time.time() - last_time
-        last_time = time.time()
+        # engine.update calculates dt internally and returns it
+        dt = engine.update()
 
-        engine.update()
-
+        # run user loop(dt)
         if hasattr(user, "loop"):
             user.loop(dt)
 
+        # draw everything
         engine.draw()
-        engine.clock.tick(config.FPS)
 
     pygame.quit()
 
