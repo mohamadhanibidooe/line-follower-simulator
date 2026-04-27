@@ -3,6 +3,8 @@
 # Line sensor module (5 analog sensors)
 # ------------------------------------------
 import math
+import random
+from config import SENSOR_ANALOG_NOISE
 
 class LineSensorArray:
     def __init__(self, robot, sensor_offset=35, sensor_spacing=8):
@@ -43,7 +45,7 @@ class LineSensorArray:
         readings = []
         positions = []
 
-        for px, py in points_local:
+        for idx, (px, py) in enumerate(points_local):
 
             # Convert to world coordinates
             wx = self.robot.x + px * math.cos(self.robot.angle) - py * math.sin(self.robot.angle)
@@ -61,10 +63,14 @@ class LineSensorArray:
             # White = 255 → Low ADC
             # We use luminance to convert to analog
             lum = (r + g + b) / 3.0
+            # Compute analog output
+            analog_value = int(self.MAX_ADC * (1.0 - lum / 255.0))
+            # Add analog noise for this specific sensor
+            noise_range = SENSOR_ANALOG_NOISE[idx]
+            noise = random.randint(-noise_range, noise_range)
+            analog_value = analog_value + noise
 
-            # Invert because black-line sensors output strong value on dark line
-            analog_value = int(self.MAX_ADC * (1 - lum / 255))
-
+            # Clamp to valid range
+            analog_value = max(0, min(self.MAX_ADC, analog_value))          
             readings.append(analog_value)
-
         return readings, positions
