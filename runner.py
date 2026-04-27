@@ -1,81 +1,131 @@
 import importlib
 import pygame
+import math
 
 from simulator.engine import Engine
 import config
 
 
-# Load user code module
 def load_user_code():
+    # Dynamically import user code
     return importlib.import_module("user_code.user_code")
-
-
-# Ask user to set robot spawn point (optional)
-def ask_spawn_point(default_point):
-    print("\n=== Robot Spawn Setup ===")
-    print("Press Enter to use default start_point:", default_point)
-
-    try:
-        sx = input("Enter spawn X (or Enter): ").strip()
-        sy = input("Enter spawn Y (or Enter): ").strip()
-
-        # if empty → use default spawn
-        if sx == "" or sy == "":
-            return default_point
-
-        return (int(sx), int(sy))
-
-    except:
-        print("Invalid input — using default start point.")
-        return default_point
 
 
 def main():
     # Create engine
     engine = Engine(config.WINDOW_WIDTH, config.WINDOW_HEIGHT)
 
-    # Load user script (user_code/user_code.py)
+    # Load user loop
     user = load_user_code()
 
-    # --------------------------------------------------------
-    # Ask user where to spawn the robot
-    # --------------------------------------------------------
+    # Default spawn from track (if exists)
     if hasattr(engine, "world") and hasattr(engine.world, "start_point"):
-        chosen_spawn = ask_spawn_point(engine.world.start_point)
+        chosen_spawn = engine.world.start_point
     else:
-        chosen_spawn = (100, 100)  # fallback
+        chosen_spawn = (100, 100)
 
-    # --------------------------------------------------------
-    # Apply spawn point to the robot
-    # --------------------------------------------------------
+    chosen_angle_deg = 0.0
+
+    # -----------------------------------------------------
+    # Phase 1: Choose spawn position by clicking
+    # -----------------------------------------------------
+    spawn_point_selected = False
+    angle_confirmed = False
+    selected_spawn = None
+    selected_angle_deg = 0.0
+
+    while not spawn_point_selected:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+
+            # Mouse left-click selects spawn point
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                selected_spawn = event.pos
+
+            # Enter confirms spawn point
+            elif event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                if selected_spawn is not None:
+                    spawn_point_selected = True
+                else:
+                    print("Please click somewhere to select spawn point.")
+
+        # Draw only the spawn point, not angle
+        engine.draw_spawn_selection(selected_spawn, None)
+
+    # If user quit early
+    if not spawn_point_selected:
+        pygame.quit()
+        return
+
+    # -----------------------------------------------------
+    # Phase 2: Choose rotation angle
+    # -----------------------------------------------------
+    selected_angle_deg = 0.0
+
+    while not angle_confirmed:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+
+            elif event.type == pygame.KEYDOWN:
+                # Rotate left/right
+                if event.key == pygame.K_LEFT:
+                    selected_angle_deg -= 5.0
+                elif event.key == pygame.K_RIGHT:
+                    selected_angle_deg += 5.0
+
+                # Fine adjustments
+                elif event.key == pygame.K_q:
+                    selected_angle_deg -= 1.0
+                elif event.key == pygame.K_e:
+                    selected_angle_deg += 1.0
+
+                # Confirm angle
+                elif event.key == pygame.K_RETURN:
+                    angle_confirmed = True
+
+        # Keep degree in range [0-360)
+        selected_angle_deg %= 360.0
+
+        # Draw spawn + angle arrow
+        engine.draw_spawn_selection(selected_spawn, selected_angle_deg)
+
+    chosen_spawn = selected_spawn
+    chosen_angle_deg = selected_angle_deg
+
+    # Store chosen spawn inside engine so RESET can use it
+    engine.spawn_point = chosen_spawn
+    engine.spawn_angle = chosen_angle_deg
+
+    # -----------------------------------------------------
+    # Apply selected spawn & angle to robot
+    # -----------------------------------------------------
     if hasattr(engine, "robot"):
         engine.robot.x, engine.robot.y = chosen_spawn
         engine.robot.spawn_x, engine.robot.spawn_y = chosen_spawn
-        engine.set_finish_line(chosen_spawn)
 
-    # Run optional user setup()
-    if hasattr(user, "setup"):
-        user.setup()
+        # Robot uses radians internally → convert here
+        engine.robot.angle = math.radians(chosen_angle_deg)
+
+        # Set finish line marker
+        engine.set_finish_line(chosen_spawn)
 
     running = True
 
-    # ---------------- MAIN LOOP ----------------
+    # -----------------------------------------------------
+    # Main simulation loop
+    # -----------------------------------------------------
     while running:
-        # handle quit or window events
         running = engine.handle_events()
-
-        # engine.update calculates dt internally and returns it
         dt = engine.update()
 
-        # run user loop(dt)
         if hasattr(user, "loop"):
             user.loop(dt)
 
-        # draw everything
         engine.draw()
-
-    pygame.quit()
-
 
 if __name__ == "__main__":
     main()
