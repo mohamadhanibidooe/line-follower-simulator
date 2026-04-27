@@ -1,5 +1,7 @@
+#robot.py
 import pygame
 import math
+from simulator.sensors import LineSensorArray
 
 class Robot:
     def __init__(self, x, y,angle=0):
@@ -10,6 +12,7 @@ class Robot:
         self.spawn_x = x
         self.spawn_y = y
         self.spawn_angle = angle
+        self.line_sensors = LineSensorArray(self)
 
 
         # motor speeds in percent (0-100)
@@ -62,40 +65,7 @@ class Robot:
     # Read line sensors (5 sensors)
     # ---------------------------------------------------------
     def read_line_sensors(self):
-
-        # If world is not set yet, return no detection
-        if not hasattr(self, "world") or self.world is None:
-            return [0,0,0,0,0], [(int(self.x), int(self.y))] * 5
-
-        # sensor positions relative to robot
-        points_local = [
-            (self.sensor_offset, -2*self.sensor_spacing),  # far left
-            (self.sensor_offset, -self.sensor_spacing),    # left
-            (self.sensor_offset, 0),                       # center
-            (self.sensor_offset, self.sensor_spacing),     # right
-            (self.sensor_offset, 2*self.sensor_spacing),   # far right
-        ]
-
-        readings = []
-        positions = []
-
-        for px, py in points_local:
-
-            # convert local coordinates to world coordinates
-            wx = self.x + px * math.cos(self.angle) - py * math.sin(self.angle)
-            wy = self.y + px * math.sin(self.angle) + py * math.cos(self.angle)
-
-            ix, iy = int(wx), int(wy)
-            positions.append((ix, iy))
-
-            # check if sensor is inside world
-            if 0 <= ix < self.world.surface.get_width() and 0 <= iy < self.world.surface.get_height():
-                color = self.world.surface.get_at((ix, iy))
-                readings.append(1 if color == (0,0,0,255) else 0)
-            else:
-                readings.append(0)
-
-        return readings, positions
+        return self.line_sensors.read()
 
 
 

@@ -11,7 +11,7 @@ def get_robot():
     return _robot
 
 def read_line_sensors():
-    # return list of 5 sensor values only
+   # return list of 5 analog sensor values (0..4095)
     if _robot is None:
         return [0, 0, 0, 0, 0]
 
