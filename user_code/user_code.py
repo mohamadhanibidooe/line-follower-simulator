@@ -1,10 +1,10 @@
 from simulator.api_stub import read_line_sensors, set_motors
 
 def setup():
-    print("Line follower started")
+    print("Line follower started (analog sensors)")
 
 def loop(dt):
-
+    # Read 5 analog sensors (0..4095)
     s = read_line_sensors()
 
     L2 = s[0]
@@ -13,25 +13,28 @@ def loop(dt):
     R1 = s[3]
     R2 = s[4]
 
-    base = 45
+    base_speed = 45
 
-    # strong left
-    if L2:
-        set_motors(base + 40, base - 40)
+    # Threshold for detecting black line
+    # You may need to tune this value based on your track colors
+    threshold = 1500
 
-    # slight left
-    elif L1:
-        set_motors(base +25, base - 25)
+    # Strong left
+    if L2 > threshold:
+        set_motors(base_speed + 40, base_speed - 40)
 
-    # strong right
-    elif R2:
-        set_motors(base - 40, base + 40)
+    # Slight left
+    elif L1 > threshold:
+        set_motors(base_speed + 25, base_speed - 25)
 
-    # slight right
-    elif R1:
-        set_motors(base - 25, base + 25)
+    # Strong right
+    elif R2 > threshold:
+        set_motors(base_speed - 40, base_speed + 40)
 
-    
-    # line lost
+    # Slight right
+    elif R1 > threshold:
+        set_motors(base_speed - 25, base_speed + 25)
+
+    # Line centered or lost -> go straight
     else:
-        set_motors(base, base)
+        set_motors(base_speed, base_speed)
