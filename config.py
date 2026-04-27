@@ -16,3 +16,19 @@ SENSOR_ANALOG_NOISE = [
     80    # S5 (right)
 ]
 
+# Motor command noise (added to speed command)
+# Value is max absolute noise added to motor speed
+MOTOR_COMMAND_NOISE = 1.0  # example: ±5 units
+
+# Constant motor bias (simulates imperfect motors)
+# Left motor bias and right motor bias
+MOTOR_BIAS = {
+    "left": 0.5,
+    "right": -0.5
+}
+
+# Motor multiplicative gain error (percentage error)
+# 0.05 means ±5% variation
+MOTOR_GAIN_ERROR = 0.01
+
+ROBOT_MAX_SPEED = 3.0

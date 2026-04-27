@@ -2,6 +2,8 @@
 import pygame
 import math
 from simulator.sensors import LineSensorArray
+from simulator.motors import DifferentialDriveMotors
+from config import ROBOT_MAX_SPEED
 
 class Robot:
     def __init__(self, x, y,angle=0):
@@ -12,15 +14,13 @@ class Robot:
         self.spawn_x = x
         self.spawn_y = y
         self.spawn_angle = angle
-        self.line_sensors = LineSensorArray(self)
-
-
-        # motor speeds in percent (0-100)
-        self.left_motor = 0
-        self.right_motor = 0
-
+        
         # max linear speed (pixels per frame)
-        self.max_speed = 3
+        self.max_speed = ROBOT_MAX_SPEED
+
+        self.motors = DifferentialDriveMotors(self.max_speed)
+
+        self.line_sensors = LineSensorArray(self)
 
         # how strong turning effect is
         self.turn_factor = 0.04
@@ -43,9 +43,15 @@ class Robot:
         # keep world reference for sensor reading
         self.world = world
 
-        # convert motor percent to real speed
-        left_speed = (self.left_motor / 100.0) * self.max_speed
-        right_speed = (self.right_motor / 100.0) * self.max_speed
+        # convert motor percent to commanded speed
+        cmd_left = (self.left_motor / 100.0) * self.max_speed
+        cmd_right = (self.right_motor / 100.0) * self.max_speed
+
+        # send command to motor model
+        self.motors.set_speeds(cmd_left, cmd_right)
+
+        # get real motor speeds (with noise / bias)
+        left_speed, right_speed = self.motors.get_speeds()
 
         # forward speed = average of both motors
         forward = (left_speed + right_speed) / 2
@@ -59,6 +65,7 @@ class Robot:
         # move robot
         self.x += math.cos(self.angle) * forward
         self.y += math.sin(self.angle) * forward
+
 
 
     # ---------------------------------------------------------
