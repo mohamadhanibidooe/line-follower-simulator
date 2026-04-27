@@ -31,10 +31,7 @@ def loop(dt):
     elif R1:
         set_motors(base - 25, base + 25)
 
-    # center checked LAST
-    elif C:
-        set_motors(base, base)
-
+    
     # line lost
     else:
         set_motors(base, base)
