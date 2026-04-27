@@ -6,6 +6,11 @@ class Robot:
         self.x = x
         self.y = y
         self.angle = angle
+        self.active = False
+        self.spawn_x = x
+        self.spawn_y = y
+        self.spawn_angle = angle
+
 
         # motor speeds in percent (0-100)
         self.left_motor = 0
@@ -145,3 +150,7 @@ class Robot:
         for (ix, iy), r in zip(positions, readings):
             color = (0,255,0) if r else (255,0,0)
             pygame.draw.circle(screen, color, (ix, iy), 4)
+    def reset_position(self):
+        self.x = self.spawn_x
+        self.y = self.spawn_y
+        self.angle = self.spawn_angle

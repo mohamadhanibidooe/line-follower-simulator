@@ -51,6 +51,8 @@ def main():
     if hasattr(engine, "robot"):
         engine.robot.x, engine.robot.y = chosen_spawn
 
+        engine.robot.spawn_x, engine.robot.spawn_y = chosen_spawn
+        
     # Run optional user setup()
     if hasattr(user, "setup"):
         user.setup()
